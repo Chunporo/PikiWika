@@ -1,9 +1,16 @@
+CREATE DATABASE Pikawiki
+GO
+
 USE Pikawiki;
+GO
 
 CREATE TABLE Pokemon
 (
 	pokemonid INT,
 	pname CHAR(20) UNIQUE NOT NULL,
+	height INT NOT NULL
+	weight INT NOT NULL
+	xp INT NOT NULL
 	hp INT NOT NULL,
 	attack INT NOT NULL,
 	defense INT NOT NULL,
@@ -36,6 +43,7 @@ CREATE TABLE Abilities
 	abilityid INT IDENTITY(1,1),
 	aname CHAR(20) UNIQUE NOT NULL,
 	effect VARCHAR(3000) NOT NULL,
+	is_hidden BIT,
 	PRIMARY KEY (abilityid)
 );
 
