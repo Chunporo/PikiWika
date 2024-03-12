@@ -1,0 +1,6 @@
+pokemonid,pname,height,weight,xp,hp,attack,defense,specialattack,specialdefense,speed
+894,regieleki,12,1450,290,1086,100,50,100,50,200
+895,regidrago,21,2000,290,1087,100,50,100,50,80
+896,glastrier,22,8000,290,1088,145,130,65,110,30
+897,spectrier,20,445,290,1089,65,60,145,80,130
+898,calyrex,11,77,250,1090,80,80,80,80,80

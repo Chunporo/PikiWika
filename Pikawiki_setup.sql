@@ -100,6 +100,6 @@ CREATE TABLE defending
 	typeid2 INT,
 	effectiveness REAL,
 	PRIMARY KEY(typeid1, typeid2),
-	FOREIGN KEY (typeid1) REFERENCES Types(typeid),
+	FOREIGN KEY (typeid1) REF	ERENCES Types(typeid),
 	FOREIGN KEY (typeid2) REFERENCES Types(typeid)
 );
