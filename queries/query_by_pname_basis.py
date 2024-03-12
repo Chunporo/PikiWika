@@ -1,20 +1,18 @@
 import pyodbc
 
 # Set your database connection details
-server = 'your_server_name'
+server = 'LAPTOP-DN3PCHGN\SQLEXPRESS01'
 database = 'Pikawiki'
-username = 'your_username'
-password = 'your_password'
-driver = '{ODBC Driver 17 for SQL Server}'  # Adjust the driver according to your setup
+driver = 'ODBC Driver 17 for SQL Server'  # Adjust the driver according to your setup
 
-# Establish the database connection
-connection_string = f'DRIVER={driver};SERVER={server};DATABASE={database};UID={username};PWD={password}'
+# Establish the database connection with Windows Authentication
+connection_string = f'DRIVER={driver};SERVER={server};DATABASE={database};Trusted_Connection=yes'
 connection = pyodbc.connect(connection_string)
 cursor = connection.cursor()
 
 def get_pokemon_info_by_name(pokemon_name):
     # Query to get Pokemon information by name
-    query = f"""
+    query = """
     SELECT
         P.pname,
         P.height,
@@ -26,20 +24,38 @@ def get_pokemon_info_by_name(pokemon_name):
         P.specialattack,
         P.specialdefense,
         P.speed,
-        T.tname AS type
+        T.tname AS type,
+        STRING_AGG(A.aname, ', ') AS abilities 
     FROM
         Pokemon P
     JOIN
-        has H ON P.pokemonid = H.pokemonid
+        pokemon_types H ON P.pokemonid = H.pokemon_id
     JOIN
-        Types T ON H.typeid = T.typeid
+        Types T ON H.type_id = T.typeid
+    JOIN
+        possesses ON possesses.pokemonid = P.pokemonid
+    JOIN
+        abilities A ON possesses.abilityid = A.abilityid
     WHERE
         P.pname = ?
+    GROUP BY
+        P.pname,
+        P.height,
+        P.weight,
+        P.xp,
+        P.hp,
+        P.attack,
+        P.defense,
+        P.specialattack,
+        P.specialdefense,
+        P.speed,
+        T.tname
     """
+    
     # Execute the query
     cursor.execute(query, pokemon_name)
     
-    # Fetch the result
+    # Fetch the first result
     result = cursor.fetchone()
     
     if result:
@@ -50,11 +66,14 @@ def get_pokemon_info_by_name(pokemon_name):
         print(f"Special Attack: {result.specialattack} Special Defense: {result.specialdefense}")
         print(f"Speed: {result.speed}")
         print(f"Type: {result.type}")
+        print(f"Abilities: {result.abilities}")
+        print("-" * 20)
     else:
         print(f"No Pokemon found with the name '{pokemon_name}'")
 
+
 # Example: Query Pokemon information by name
-pokemon_name_to_query = 'Pikachu'
+pokemon_name_to_query = 'Ekans'
 get_pokemon_info_by_name(pokemon_name_to_query)
 
 # Close the database connection
