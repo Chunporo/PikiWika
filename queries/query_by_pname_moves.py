@@ -9,9 +9,9 @@ driver = 'ODBC Driver 17 for SQL Server'  # Adjust the driver according to your 
 # Establish the database connection with Windows Authentication
 connection_string = f'DRIVER={driver};SERVER={server};DATABASE={database};Trusted_Connection=yes'
 connection = pyodbc.connect(connection_string)
-cursor = connection.cursor()
 
-def get_pokemon_moves_by_name(pokemon_name, cursor):
+# Function to get Pokemon moves by name
+def get_pokemon_moves_by_name(pokemon_name, version_group_id=20):
     # Query to get Pokemon information by name
     query = """
     SELECT 
@@ -19,8 +19,7 @@ def get_pokemon_moves_by_name(pokemon_name, cursor):
         M.mname AS "Move Name",
         T.Tname AS "Type",
         M.power,
-        M.accuracy,
-        M.generation_id
+        M.accuracy
     FROM
         pokemon
     JOIN
@@ -30,31 +29,22 @@ def get_pokemon_moves_by_name(pokemon_name, cursor):
     JOIN
         Types T ON T.typeid = M.type_id
     WHERE
-        pokemon.pname = ?
+        pokemon.pname = ? AND PM.pokemon_move_method_id = 1 AND PM.version_group_id = ?
+    ORDER BY
+        PM.level ASC;
     """
     
-    # Execute the query
-    cursor.execute(query, (pokemon_name,))
+    # Execute the query and fetch results into a DataFrame
+    df = pd.read_sql_query(query, connection, params=(pokemon_name, version_group_id))
     
-    # Fetch all results
-    results = cursor.fetchall()
-    
-    # Create a DataFrame from the results
-    if not results:
-        print("No results found for the given Pokemon name.")
-    else:
-    # Create a DataFrame from the results
-        columns = [column[0] for column in cursor.description]  # Extract column names from cursor.description
-        pokemon_df = pd.DataFrame(results, columns=columns)
+    return df
 
-    # Print the DataFrame
-    print(pokemon_df)
+# Example: Query Pokemon information by name with the default version_group_id = 20
+pokemon_name_to_query = 'Pikachu'
+pokemon_moves_df = get_pokemon_moves_by_name(pokemon_name_to_query)
 
-# Example: Query Pokemon information by name
-pokemon_name_to_query = 'Ekans'
-pokemon_df = get_pokemon_moves_by_name(pokemon_name_to_query, cursor)
-
+# Print the DataFrame
+print(pokemon_moves_df)
 
 # Close the database connection
-cursor.close()
 connection.close()
